@@ -1,0 +1,250 @@
+<script>
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('theme', newTheme);
+        
+        updateThemeButtonIcon();
+    }
+    
+    function updateThemeButtonIcon() {
+        const themeButton = document.getElementById('theme-toggle');
+        if (!themeButton) return;
+        
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        
+        if (currentTheme === 'dark') {
+            themeButton.innerHTML = '☀️';
+            themeButton.title = 'Cambiar a tema claro';
+        } else {
+            themeButton.innerHTML = '🌙';
+            themeButton.title = 'Cambiar a tema oscuro';
+        }
+    }
+    
+    function setInitialTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        let theme = 'light';
+        
+        if (savedTheme) {
+            theme = savedTheme;
+        } else if (prefersDark) {
+            theme = 'dark';
+        }
+        
+        document.documentElement.setAttribute('data-theme', theme);
+        updateThemeButtonIcon();
+    }
+    
+    window.addEventListener('DOMContentLoaded', function() {
+        setInitialTheme();
+        
+        const themeButton = document.createElement('button');
+        themeButton.id = 'theme-toggle';
+        themeButton.className = 'theme-toggle';
+        themeButton.onclick = toggleTheme;
+        
+        const wrapper = document.querySelector('.wrapper');
+        if (wrapper) {
+            wrapper.insertBefore(themeButton, wrapper.firstChild);
+            updateThemeButtonIcon();
+        }
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey || event.altKey || event.metaKey || 
+                event.key.length > 1 || event.key === ' ') {
+                return;
+            }
+            
+            const filterInput = document.getElementById('filter');
+            if (document.activeElement !== filterInput && /^[a-zA-Z0-9]$/.test(event.key)) {
+                filterInput.focus();
+            }
+        });
+    });
+
+    window.onload = function() {
+        createGalleryView();
+        
+        var filterInput = document.getElementById('filter');
+        filterInput.addEventListener('input', function() {
+            filterGalleryItems(this.value.toLowerCase());
+        });
+    };
+    
+    function filterGalleryItems(filterValue) {
+        var galleryItems = document.querySelectorAll('.gallery-item');
+        var hasVisibleItems = false;
+        
+        galleryItems.forEach(function(item) {
+            var nameElement = item.querySelector('.gallery-item-name');
+            if (nameElement) {
+                var text = nameElement.textContent.toLowerCase();
+                var isVisible = text.indexOf(filterValue) !== -1;
+                
+                item.style.display = isVisible ? 'block' : 'none';
+                
+                if (isVisible) {
+                    hasVisibleItems = true;
+                }
+            }
+        });
+        
+        var parentDir = document.querySelector('.parent-directory');
+        if (parentDir) {
+            parentDir.style.display = filterValue.length > 0 ? 'none' : 'flex';
+        }
+        
+        var noResultsMessage = document.getElementById('no-results-message');
+        if (!hasVisibleItems && filterValue.length > 0) {
+            if (!noResultsMessage) {
+                var galleryContainer = document.querySelector('.gallery-container');
+                noResultsMessage = document.createElement('div');
+                noResultsMessage.id = 'no-results-message';
+                noResultsMessage.className = 'no-results-message';
+                noResultsMessage.textContent = 'No se encontraron archivos que coincidan con "' + filterValue + '"';
+                galleryContainer.appendChild(noResultsMessage);
+            }
+            noResultsMessage.style.display = 'block';
+        } else if (noResultsMessage) {
+            noResultsMessage.style.display = 'none';
+        }
+    }
+    
+    function createGalleryView() {
+        var galleryContainer = document.createElement('div');
+        galleryContainer.className = 'gallery-container gallery-view';
+        
+        var rows = document.querySelectorAll('#indexlist tr');
+        
+        for (var i = 1; i < rows.length; i++) {
+            var row = rows[i];
+            var cells = row.querySelectorAll('td');
+            
+            if (row.classList.contains('parent')) {
+                var parentLink = cells[1].querySelector('a');
+                var parentDir = document.createElement('div');
+                parentDir.className = 'parent-directory';
+                
+                var parentAnchor = document.createElement('a');
+                parentAnchor.href = parentLink.href;
+                
+                var originalIcon = cells[0].querySelector('img');
+                var iconSrc = originalIcon ? originalIcon.src : '/.theme/icons/folder-home.png';
+                
+                var icon = document.createElement('img');
+                icon.src = iconSrc;
+                
+                parentAnchor.appendChild(icon);
+                parentAnchor.appendChild(document.createTextNode('Directorio anterior'));
+                
+                parentDir.appendChild(parentAnchor);
+                galleryContainer.appendChild(parentDir);
+                continue;
+            }
+            
+            if (cells.length >= 3) {
+                var nameCell = cells[1];
+                var dateCell = cells[2];
+                var sizeCell = cells[3];
+                
+                var link = nameCell.querySelector('a');
+                if (link) {
+                    var galleryItem = document.createElement('div');
+                    galleryItem.className = 'gallery-item';
+                    
+                    var iconContainer = document.createElement('div');
+                    iconContainer.className = 'gallery-item-icon';
+                    
+                    var originalIcon = cells[0].querySelector('img');
+                    var iconSrc = originalIcon ? originalIcon.src : '/.theme/icons/default.png';
+                    
+                    var fileName = link.textContent.toLowerCase();
+                    if (fileName.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) {
+                        iconSrc = link.href;
+                    }
+                    
+                    var icon = document.createElement('img');
+                    icon.src = iconSrc;
+                    icon.alt = fileName;
+                    icon.loading = "lazy";
+                    
+                    var img = new Image();
+                    img.onload = function() {};
+                    img.src = iconSrc;
+                    
+                    iconContainer.appendChild(icon);
+                    
+                    var infoContainer = document.createElement('div');
+                    infoContainer.className = 'gallery-item-info';
+                    
+                    var nameElement = document.createElement('div');
+                    nameElement.className = 'gallery-item-name';
+                    nameElement.title = link.textContent;
+                    
+                    var displayName = link.textContent;
+                    if (displayName.length > 20) {
+                        displayName = displayName.substring(0, 17) + '...';
+                    }
+                    nameElement.textContent = displayName;
+                    
+                    var detailsElement = document.createElement('div');
+                    detailsElement.className = 'gallery-item-details';
+                    
+                    var dateText = dateCell.textContent.trim();
+                    var sizeText = sizeCell.textContent.trim();
+                    
+                    detailsElement.textContent = formatDetails(dateText, sizeText);
+                    
+                    infoContainer.appendChild(nameElement);
+                    infoContainer.appendChild(detailsElement);
+                    
+                    var itemLink = document.createElement('a');
+                    itemLink.href = link.href;
+                    itemLink.appendChild(iconContainer);
+                    itemLink.appendChild(infoContainer);
+                    
+                    galleryItem.appendChild(itemLink);
+                    galleryContainer.appendChild(galleryItem);
+                }
+            }
+        }
+        
+        var table = document.querySelector('#indexlist');
+        table.parentNode.insertBefore(galleryContainer, table.nextSibling);
+        
+        table.style.display = 'none';
+    }
+    
+    function formatDetails(dateText, sizeText) {
+        var dateMatch = dateText.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/);
+        var formattedDate = dateText;
+        
+        if (dateMatch) {
+            var year = dateMatch[1];
+            var month = dateMatch[2];
+            var day = dateMatch[3];
+            var hour = dateMatch[4];
+            var minute = dateMatch[5];
+            
+            formattedDate = day + "/" + month + "/" + year.substring(2) + " " + hour + ":" + minute;
+        }
+        
+        return formattedDate + " - " + sizeText;
+    }
+</script>
+
+<link rel="stylesheet" href="/.theme/gallery.css">
+
+<div class="wrapper">
+
+<ol class="breadcrumb" id="breadcrumb">
+</ol>
+
+<input type="search" id="filter" placeholder="Search" />
+
+Gallery
