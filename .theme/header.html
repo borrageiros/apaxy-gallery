@@ -237,8 +237,23 @@
                     var iconSrc = originalIcon ? originalIcon.src : '/.theme/icons/default.png';
                     
                     var fileName = link.textContent.toLowerCase();
-                    if (fileName.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) {
+                    var isImage = fileName.match(/\.(jpg|jpeg|png|gif|webp|svg)$/);
+                    if (isImage) {
                         iconSrc = link.href;
+                        
+                        var copyButton = document.createElement('button');
+                        copyButton.className = 'copy-link-button';
+                        copyButton.innerHTML = '📋';
+                        copyButton.title = 'Copy link';
+                        copyButton.setAttribute('data-url', link.href);
+                        copyButton.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            var url = this.getAttribute('data-url');
+                            copyToClipboard(url);
+                            return false;
+                        };
+                        galleryItem.appendChild(copyButton);
                     }
                     
                     var icon = document.createElement('img');
@@ -306,6 +321,50 @@
         }
         
         return formattedDate + " - " + sizeText;
+    }
+    
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            showCopySuccess();
+        }).catch(function(err) {
+            console.error('Error: ', err);
+            var textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                var successful = document.execCommand('copy');
+                if (successful) {
+                    showCopySuccess();
+                }
+            } catch (err) {
+                console.error('Error con fallback: ', err);
+            }
+            
+            document.body.removeChild(textArea);
+        });
+    }
+    
+    function showCopySuccess() {
+        var successMessage = document.getElementById('copy-success-message');
+        if (!successMessage) {
+            successMessage = document.createElement('div');
+            successMessage.id = 'copy-success-message';
+            successMessage.className = 'copy-success';
+            successMessage.textContent = 'Enlace copiado al portapapeles';
+            document.body.appendChild(successMessage);
+        }
+        
+        successMessage.classList.add('show');
+        
+        setTimeout(function() {
+            successMessage.classList.remove('show');
+        }, 2000);
     }
 </script>
 
