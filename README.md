@@ -6,6 +6,7 @@ A clean and modern theme for Apache directory listings, inspired by [oupala/apax
 
 - 🎨 Clean, modern gallery layout
 - 🌓 Automatic dark/light mode based on system preferences
+- 📋 Toggle between gallery and table views
 - 🔄 Manual theme toggle
 - 📱 Fully responsive design
 - 🖼️ Image preview support

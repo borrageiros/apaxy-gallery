@@ -9,7 +9,7 @@ button,hr,input{overflow:visible}audio,canvas,progress,video{display:inline-bloc
   -webkit-box-sizing: border-box;
 }
 
-/* Variables para el tema claro (por defecto) */
+/* Variables for light theme (default) */
 :root {
   --background-color: #ffffff;
   --text-color: #61666c;
@@ -24,7 +24,7 @@ button,hr,input{overflow:visible}audio,canvas,progress,video{display:inline-bloc
   --filter-border: rgba(0, 0, 0, 0.15);
 }
 
-/* Variables para el tema oscuro */
+/* Variables for dark theme */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --background-color: #232323;
@@ -41,7 +41,7 @@ button,hr,input{overflow:visible}audio,canvas,progress,video{display:inline-bloc
   }
 }
 
-/* Aplicar tema oscuro cuando se selecciona manualmente */
+/* Apply dark theme when manually selected */
 :root[data-theme="dark"] {
   --background-color: #232323;
   --text-color: #a1a6ac;
@@ -56,7 +56,7 @@ button,hr,input{overflow:visible}audio,canvas,progress,video{display:inline-bloc
   --filter-border: rgba(255, 255, 255, 0.15);
 }
 
-/* Aplicar tema claro cuando se selecciona manualmente */
+/* Apply light theme when manually selected */
 :root[data-theme="light"] {
   --background-color: #ffffff;
   --text-color: #61666c;
@@ -255,6 +255,19 @@ tr.parent a[href^="/"] {
   }
   .indexcollastmod { display: none; }
   .wrapper { max-width: 100%; }
+  
+  /* Search bar in phones */
+  #filter {
+    float: none;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 15px;
+  }
+  
+  #filter:focus {
+    width: 100%;
+  }
 }
 
 /*------------------------------------*\

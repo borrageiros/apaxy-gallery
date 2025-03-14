@@ -24,6 +24,42 @@
         }
     }
     
+    function toggleView() {
+        const currentView = localStorage.getItem('view') || 'gallery';
+        const newView = currentView === 'gallery' ? 'table' : 'gallery';
+        
+        localStorage.setItem('view', newView);
+        
+        updateViewDisplay(newView);
+        updateViewButtonIcon(newView);
+    }
+    
+    function updateViewButtonIcon(view) {
+        const viewButton = document.getElementById('view-toggle');
+        if (!viewButton) return;
+        
+        if (view === 'table') {
+            viewButton.innerHTML = '🖼️';
+            viewButton.title = 'Cambiar a vista de galería';
+        } else {
+            viewButton.innerHTML = '📋';
+            viewButton.title = 'Cambiar a vista de tabla';
+        }
+    }
+    
+    function updateViewDisplay(view) {
+        const galleryContainer = document.querySelector('.gallery-container');
+        const tableContainer = document.querySelector('#indexlist');
+        
+        if (view === 'table') {
+            if (galleryContainer) galleryContainer.style.display = 'none';
+            if (tableContainer) tableContainer.style.display = 'table';
+        } else {
+            if (galleryContainer) galleryContainer.style.display = 'grid';
+            if (tableContainer) tableContainer.style.display = 'none';
+        }
+    }
+    
     function setInitialTheme() {
         const savedTheme = localStorage.getItem('theme');
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -40,6 +76,12 @@
         updateThemeButtonIcon();
     }
     
+    function setInitialView() {
+        const savedView = localStorage.getItem('view') || 'gallery';
+        updateViewDisplay(savedView);
+        updateViewButtonIcon(savedView);
+    }
+    
     window.addEventListener('DOMContentLoaded', function() {
         setInitialTheme();
         
@@ -48,10 +90,17 @@
         themeButton.className = 'theme-toggle';
         themeButton.onclick = toggleTheme;
         
+        const viewButton = document.createElement('button');
+        viewButton.id = 'view-toggle';
+        viewButton.className = 'view-toggle';
+        viewButton.onclick = toggleView;
+        
         const wrapper = document.querySelector('.wrapper');
         if (wrapper) {
             wrapper.insertBefore(themeButton, wrapper.firstChild);
+            wrapper.insertBefore(viewButton, wrapper.firstChild);
             updateThemeButtonIcon();
+            updateViewButtonIcon(localStorage.getItem('view') || 'gallery');
         }
         
         document.addEventListener('keydown', function(event) {
@@ -69,6 +118,7 @@
 
     window.onload = function() {
         createGalleryView();
+        setInitialView();
         
         var filterInput = document.getElementById('filter');
         filterInput.addEventListener('input', function() {
@@ -78,8 +128,10 @@
     
     function filterGalleryItems(filterValue) {
         var galleryItems = document.querySelectorAll('.gallery-item');
+        var tableRows = document.querySelectorAll('#indexlist tr:not(.indexhead):not(.parent)');
         var hasVisibleItems = false;
         
+        // Filtrar elementos de la galería
         galleryItems.forEach(function(item) {
             var nameElement = item.querySelector('.gallery-item-name');
             if (nameElement) {
@@ -94,9 +146,30 @@
             }
         });
         
+        // Filtrar filas de la tabla
+        tableRows.forEach(function(row) {
+            var nameCell = row.querySelector('td:nth-child(2)');
+            if (nameCell) {
+                var text = nameCell.textContent.toLowerCase();
+                var isVisible = text.indexOf(filterValue) !== -1;
+                
+                row.style.display = isVisible ? '' : 'none';
+                
+                if (isVisible) {
+                    hasVisibleItems = true;
+                }
+            }
+        });
+        
         var parentDir = document.querySelector('.parent-directory');
-        if (parentDir) {
-            parentDir.style.display = filterValue.length > 0 ? 'none' : 'flex';
+        var parentRow = document.querySelector('#indexlist tr.parent');
+        
+        if (filterValue.length > 0) {
+            if (parentDir) parentDir.style.display = 'none';
+            if (parentRow) parentRow.style.display = 'none';
+        } else {
+            if (parentDir) parentDir.style.display = 'flex';
+            if (parentRow) parentRow.style.display = '';
         }
         
         var noResultsMessage = document.getElementById('no-results-message');
@@ -216,8 +289,6 @@
         
         var table = document.querySelector('#indexlist');
         table.parentNode.insertBefore(galleryContainer, table.nextSibling);
-        
-        table.style.display = 'none';
     }
     
     function formatDetails(dateText, sizeText) {
