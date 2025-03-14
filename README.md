@@ -11,6 +11,7 @@ A clean and modern theme for Apache directory listings, inspired by [oupala/apax
 - 📱 Fully responsive design
 - 🖼️ Image preview support
 - 📂 Clear file/folder organization
+- 📎 Quick copy image URL button
 
 ## 📷 Screenshots
 
