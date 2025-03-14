@@ -238,22 +238,40 @@
                     
                     var fileName = link.textContent.toLowerCase();
                     var isImage = fileName.match(/\.(jpg|jpeg|png|gif|webp|svg)$/);
+                    
+                    var isDirectory = false;
+                    
+                    if (originalIcon && originalIcon.src) {
+                        var iconSrcLower = originalIcon.src.toLowerCase();
+                        isDirectory = iconSrcLower.includes('folder') || 
+                                     iconSrcLower.includes('directory') || 
+                                     iconSrcLower.includes('dir');
+                    }
+                    
+                    var size = sizeCell.textContent.trim();
+                    if (size === '-') {
+                        isDirectory = true;
+                    }
+                    
                     if (isImage) {
                         iconSrc = link.href;
-                        
-                        var copyButton = document.createElement('button');
-                        copyButton.className = 'copy-link-button';
-                        copyButton.innerHTML = '📋';
-                        copyButton.title = 'Copy link';
-                        copyButton.setAttribute('data-url', link.href);
-                        copyButton.onclick = function(e) {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            var url = this.getAttribute('data-url');
-                            copyToClipboard(url);
-                            return false;
-                        };
-                        galleryItem.appendChild(copyButton);
+                    }
+                    
+                    if (!isDirectory) {
+                        (function(currentUrl) {
+                            var copyButton = document.createElement('button');
+                            copyButton.className = 'copy-link-button';
+                            copyButton.innerHTML = '📋';
+                            copyButton.title = 'Copiar enlace';
+                            copyButton.setAttribute('data-url', currentUrl);
+                            copyButton.onclick = function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                copyToClipboard(this.getAttribute('data-url'));
+                                return false;
+                            };
+                            galleryItem.appendChild(copyButton);
+                        })(link.href);
                     }
                     
                     var icon = document.createElement('img');
@@ -292,7 +310,22 @@
                     infoContainer.appendChild(detailsElement);
                     
                     var itemLink = document.createElement('a');
-                    itemLink.href = link.href;
+                    
+                    if (isImage) {
+                        itemLink.href = "javascript:void(0);";
+                        
+                        (function(currentUrl, currentName) {
+                            itemLink.onclick = function(e) {
+                                e.preventDefault();
+                                openImagePreview(currentUrl, currentName);
+                                return false;
+                            };
+                        })(link.href, link.textContent);
+                        
+                    } else {
+                        itemLink.href = link.href;
+                    }
+                    
                     itemLink.appendChild(iconContainer);
                     itemLink.appendChild(infoContainer);
                     
@@ -304,6 +337,8 @@
         
         var table = document.querySelector('#indexlist');
         table.parentNode.insertBefore(galleryContainer, table.nextSibling);
+
+        createImagePreviewModal();
     }
     
     function formatDetails(dateText, sizeText) {
@@ -366,6 +401,84 @@
             successMessage.classList.remove('show');
         }, 2000);
     }
+    
+    function createImagePreviewModal() {
+        if (document.getElementById('image-preview-modal')) {
+            return;
+        }
+        
+        var modal = document.createElement('div');
+        modal.id = 'image-preview-modal';
+        modal.className = 'image-preview-modal';
+        
+        var header = document.createElement('div');
+        header.className = 'image-preview-header';
+        header.id = 'image-preview-header';
+        modal.appendChild(header);
+        
+        var closeButton = document.createElement('button');
+        closeButton.className = 'image-preview-close';
+        closeButton.innerHTML = '✕';
+        closeButton.title = 'Cerrar';
+        closeButton.onclick = closeImagePreview;
+        modal.appendChild(closeButton);
+        
+        var content = document.createElement('div');
+        content.className = 'image-preview-content';
+        content.id = 'image-preview-content';
+        modal.appendChild(content);
+        
+        document.body.appendChild(modal);
+        
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeImagePreview();
+            }
+        });
+        
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closeImagePreview();
+            }
+        });
+    }
+    
+    function openImagePreview(imageUrl, imageName) {
+        var modal = document.getElementById('image-preview-modal');
+        var header = document.getElementById('image-preview-header');
+        var content = document.getElementById('image-preview-content');
+        
+        header.textContent = imageName;
+        
+        content.innerHTML = '';
+        
+        var isPng = imageName.toLowerCase().endsWith('.png');
+        
+        if (isPng) {
+            content.classList.add('png-preview');
+        } else {
+            content.classList.remove('png-preview');
+        }
+        
+        var img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = imageName;
+        
+        content.appendChild(img);
+        
+        modal.classList.add('active');
+        
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function closeImagePreview() {
+        var modal = document.getElementById('image-preview-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            
+            document.body.style.overflow = '';
+        }
+    }
 </script>
 
 <link rel="stylesheet" href="/.theme/gallery.css">
@@ -376,5 +489,3 @@
 </ol>
 
 <input type="search" id="filter" placeholder="Search" />
-
-Gallery
