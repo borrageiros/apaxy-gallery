@@ -9,7 +9,7 @@ A clean and modern theme for Apache directory listings, inspired by [oupala/apax
 - 📋 Toggle between gallery and table views
 - 🔄 Manual theme toggle
 - 📱 Fully responsive design
-- 🖼️ Image preview support
+- 🖼️ Modern Image/Video/Audio preview support
 - 📂 Clear file/folder organization
 - 📎 Quick copy image URL button
 
@@ -20,6 +20,12 @@ A clean and modern theme for Apache directory listings, inspired by [oupala/apax
 
 ### ⬜ Light Mode  
 ![Light Mode](.theme/screenshots/light.png)
+
+### Image/Video/Audio preview
+![Preview](.theme/screenshots/preview.png)
+
+### [oupala/apaxy](https://github.com/oupala/apaxy) Table mode
+![Table](.theme/screenshots/table.png)
 
 ## 🗒️ Installation
 
