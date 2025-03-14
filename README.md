@@ -38,7 +38,7 @@ git clone git@github.com:borrageiros/apaxy-gallery.git .
 ```
 3. (Optional and Recommended) Remove this README, the Dockerfile and the LICENCE:
 ```bash
-rm README.md && rm Dockerfile && rm LICENCE
+rm README.md && rm Dockerfile && rm LICENSE
 ```
 
 ### 🐳 Docker Installation
