@@ -179,7 +179,7 @@
                 noResultsMessage = document.createElement('div');
                 noResultsMessage.id = 'no-results-message';
                 noResultsMessage.className = 'no-results-message';
-                noResultsMessage.textContent = 'No se encontraron archivos que coincidan con "' + filterValue + '"';
+                noResultsMessage.textContent = 'No files found matching "' + filterValue + '"';
                 galleryContainer.appendChild(noResultsMessage);
             }
             noResultsMessage.style.display = 'block';
@@ -213,7 +213,7 @@
                 icon.src = iconSrc;
                 
                 parentAnchor.appendChild(icon);
-                parentAnchor.appendChild(document.createTextNode('Directorio anterior'));
+                parentAnchor.appendChild(document.createTextNode('Parent Directory'));
                 
                 parentDir.appendChild(parentAnchor);
                 galleryContainer.appendChild(parentDir);
@@ -378,7 +378,7 @@
                     showCopySuccess();
                 }
             } catch (err) {
-                console.error('Error con fallback: ', err);
+                console.error('Error with fallback: ', err);
             }
             
             document.body.removeChild(textArea);
@@ -391,7 +391,7 @@
             successMessage = document.createElement('div');
             successMessage.id = 'copy-success-message';
             successMessage.className = 'copy-success';
-            successMessage.textContent = 'Enlace copiado al portapapeles';
+            successMessage.textContent = 'Link copied to clipboard';
             document.body.appendChild(successMessage);
         }
         
@@ -419,7 +419,7 @@
         var closeButton = document.createElement('button');
         closeButton.className = 'image-preview-close';
         closeButton.innerHTML = '✕';
-        closeButton.title = 'Cerrar';
+        closeButton.title = 'Close';
         closeButton.onclick = closeImagePreview;
         modal.appendChild(closeButton);
         
